@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEXUS // Crypto Telemetry & Mining Efficiency Command Center</title>
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            obsidian: '#06080d',
+            slateCard: '#0d121d',
+            slateElevated: '#131a29',
+            neonCyan: '#00f0ff',
+            btcAmber: '#f7931a',
+            ethIndigo: '#627eea',
+            dogeGold: '#c2a633',
+            posEmerald: '#10b981',
+            negCrimson: '#ef4444',
+          },
+          animation: {
+            'marquee': 'marquee 28s linear infinite',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            marquee: {
+              '0%': { transform: 'translateX(0%)' },
+              '100%': { transform: 'translateX(-50%)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Base Command Center Styles & Custom Scrollbars */
+    body {
+      background-color: #06080d;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+      background-image: 
+        radial-gradient(circle at 15% 0%, rgba(0, 240, 255, 0.06) 0%, transparent 45%),
+        radial-gradient(circle at 85% 15%, rgba(98, 126, 234, 0.06) 0%, transparent 45%),
+        linear-gradient(to bottom, rgba(6, 8, 13, 0.92), #06080d);
+      overflow-x: hidden;
+    }
+
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Glassmorphic Card Styling */
+    .glass-panel {
+      background: rgba(13, 18, 29, 0.78);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.65), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .glass-panel:hover {
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    /* Active Selected Card Ring */
+    .asset-card-active-btc {
+      border-color: rgba(247, 147, 26, 0.65) !important;
+      box-shadow: 0 0 28px -4px rgba(247, 147, 26, 0.22), inset 0 1px 0 0 rgba(247, 147, 26, 0.25) !important;
+    }
+    .asset-card-active-eth {
+      border-color: rgba(98, 126, 234, 0.65) !important;
+      box-shadow: 0 0 28px -4px rgba(98, 126, 234, 0.24), inset 0 1px 0 0 rgba(98, 126, 234, 0.25) !important;
+    }
+    .asset-card-active-doge {
+      border-color: rgba(194, 166, 51, 0.65) !important;
+      box-shadow: 0 0 28px -4px rgba(194, 166, 51, 0.22), inset 0 1px 0 0 rgba(194, 166, 51, 0.25) !important;
+    }
+
+    /* Price Tick Flash Animations */
+    @keyframes flashGreen {
+      0% { background-color: rgba(16, 185, 129, 0.26); color: #34d399; }
+      100% { background-color: transparent; }
+    }
+    @keyframes flashRed {
+      0% { background-color: rgba(239, 68, 68, 0.26); color: #f87171; }
+      100% { background-color: transparent; }
+    }
+    .tick-up {
+      animation: flashGreen 0.65s ease-out;
+      border-radius: 6px;
+    }
+    .tick-down {
+      animation: flashRed 0.65s ease-out;
+      border-radius: 6px;
+    }
+
+    /* Subtle Grid Background Overlay */
+    .bg-grid-pattern {
+      background-size: 36px 36px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    }
+
+    /* Custom Range Input */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(255, 255, 255, 0.08);
+      height: 6px;
+      border-radius: 999px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #00f0ff;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.65);
+      border: 2px solid #06080d;
+      transition: transform 0.15s ease;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.18);
+    }
+
+    /* Pause marquee on hover */
+    .ticker-tape-wrapper:hover .animate-marquee {
+      animation-play-state: paused;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-grid-pattern antialiased selection:bg-neonCyan/20 selection:text-neonCyan">
+
+  <!-- TOP LIVE TICKER TAPE -->
+  <div class="w-full bg-[#090d16] border-b border-white/10 py-2 overflow-hidden ticker-tape-wrapper relative z-30">
+    <div class="flex whitespace-nowrap animate-marquee items-center text-xs font-mono" id="topTickerTape">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </div>
+
+  <!-- MAIN COMMAND CENTER CONTAINER -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- HEADER & TELEMETRY STATUS BAR -->
+    <header class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-2 border-b border-white/10">
+      <div class="flex items-start sm:items-center gap-3.5">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-neonCyan/20 to-ethIndigo/20 border border-neonCyan/40 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.2)] shrink-0">
+          <svg class="w-6 h-6 text-neonCyan" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">
+              NEXUS <span class="text-neonCyan font-mono font-normal text-base sm:text-lg">// QUANTUM TELEMETRY</span>
+            </h1>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-posEmerald/15 text-posEmerald border border-posEmerald/30" id="connectionBadge">
+              <span class="w-2 h-2 rounded-full bg-posEmerald animate-ping"></span>
+              <span id="connectionText">LIVE FEED ACTIVE</span>
+            </span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
+            Institutional Spot Market Ticker, Consensus Architecture &amp; Thermodynamic Mining Efficiency Matrix
+          </p>
+        </div>
+      </div>
+
+      <!-- CLOCK & NETWORK EPOCH TELEMETRY -->
+      <div class="flex flex-wrap items-center gap-3 text-xs font-mono">
+        <div class="glass-panel px-3.5 py-2 rounded-xl flex items-center gap-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-400">UTC Telemetry</div>
+            <div class="text-slate-100 font-semibold tabular-nums" id="utcClock">--:--:-- UTC</div>
+          </div>
+          <div class="h-6 w-px bg-white/10"></div>
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-400">Local Node</div>
+            <div class="text-neonCyan font-semibold tabular-nums" id="localClock">--:--:--</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- INTERACTIVE TELEMETRY CONTROL BOARD -->
+    <section aria-label="Telemetry Control Board" class="glass-panel rounded-2xl p-4 sm:p-5">
+      <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+        
+        <!-- Left Group: Currency Switcher & Stream Controls -->
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4">
+          <!-- Fiat Currency Selector -->
+          <div class="flex flex-col gap-1">
+            <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400">Settlement Currency</span>
+            <div class="inline-flex rounded-xl bg-[#070a11] p-1 border border-white/10" role="group" aria-label="Currency Switcher">
+              <button type="button" data-currency="USD" class="currency-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all bg-neonCyan text-obsidian shadow-[0_0_12px_rgba(0,240,255,0.4)]">
+                USD ($)
+              </button>
+              <button type="button" data-currency="CAD" class="currency-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold text-slate-400 hover:text-white transition-all">
+                CAD (C$)
+              </button>
+              <button type="button" data-currency="EUR" class="currency-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold text-slate-400 hover:text-white transition-all">
+                EUR (€)
+              </button>
+            </div>
+          </div>
+
+          <!-- Stream Play/Pause & Tick Speed -->
+          <div class="flex flex-col gap-1">
+            <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400">Order-Book Stream</span>
+            <div class="flex items-center gap-2">
+              <button id="toggleStreamBtn" type="button" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-posEmerald/15 text-posEmerald border border-posEmerald/35 hover:bg-posEmerald/25 transition-all">
+                <svg id="pauseIcon" class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                <svg id="playIcon" class="w-3.5 h-3.5 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
+                <span id="streamBtnLabel">STREAMING</span>
+              </button>
+
+              <div class="inline-flex rounded-xl bg-[#070a11] p-1 border border-white/10" role="group" aria-label="Tick Speed">
+                <button type="button" data-speed="3000" class="speed-btn px-2.5 py-1.5 rounded-lg text-xs font-mono text-slate-400 hover:text-white transition-all">Slow</button>
+                <button type="button" data-speed="1200" class="speed-btn px-2.5 py-1.5 rounded-lg text-xs font-mono bg-white/10 text-white font-semibold transition-all">Normal</button>
+                <button type="button" data-speed="400" class="speed-btn px-2.5 py-1.5 rounded-lg text-xs font-mono text-slate-400 hover:text-white transition-all">Hyper</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Group: Volatility Stress Slider & Force Pulse -->
+        <div class="flex flex-wrap items-center gap-4 pt-2 xl:pt-0 border-t xl:border-t-0 border-white/10">
+          <div class="flex flex-col gap-1.5 min-w-[170px] flex-1 sm:flex-initial">
+            <div class="flex items-center justify-between text-[11px] font-mono">
+              <span class="text-slate-400 uppercase tracking-wider">Volatility Stress</span>
+              <span id="volatilityLabel" class="text-neonCyan font-semibold">1.0x (Standard)</span>
+            </div>
+            <input id="volatilitySlider" type="range" min="0.2" max="4.0" step="0.2" value="1.0" class="w-full" />
+          </div>
+
+          <button id="forcePulseBtn" type="button" class="px-4 py-2.5 rounded-xl text-xs font-mono font-semibold bg-gradient-to-r from-neonCyan/20 to-ethIndigo/20 hover:from-neonCyan/30 hover:to-ethIndigo/30 text-neonCyan border border-neonCyan/40 shadow-[0_0_16px_rgba(0,240,255,0.15)] active:scale-95 transition-all flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+            Force Market Pulse
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3 PRIMARY ASSET TICKER CARDS (BTC, ETH, DOGE) -->
+    <section aria-label="Live Asset Tickers" class="grid grid-cols-1 lg:grid-cols-3 gap-5" id="assetCardsGrid">
+      <!-- Cards are rendered and updated smoothly via JS -->
+    </section>
+
+    <!-- MINING EFFICIENCY & CONSENSUS ARCHITECTURE EXPLORER -->
+    <section aria-label="Mining Efficiency and Consensus Architecture" class="glass-panel rounded-2xl p-5 sm:p-7 space-y-6">
+      
+      <!-- Section Header + Tab Selector -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-white/10">
+        <div>
+          <div class="inline-flex items-center gap-2 text-xs font-mono text-neonCyan uppercase tracking-wider mb-1">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+            </svg>
+            Consensus &amp; Thermodynamic Efficiency Architecture
+          </div>
+          <h2 class="text-lg sm:text-xl font-bold text-white">
+            Network Energy Profile, Hashrate &amp; Hardware Efficiency Matrix
+          </h2>
+        </div>
+
+        <!-- Focus Network Tabs -->
+        <div class="inline-flex rounded-xl bg-[#070a11] p-1 border border-white/10 self-start" role="tablist">
+          <button type="button" data-focus="BTC" class="focus-tab-btn px-3.5 py-2 rounded-lg text-xs font-mono font-semibold transition-all bg-btcAmber/20 text-btcAmber border border-btcAmber/40">
+            Bitcoin (SHA-256)
+          </button>
+          <button type="button" data-focus="ETH" class="focus-tab-btn px-3.5 py-2 rounded-lg text-xs font-mono font-semibold text-slate-400 hover:text-white transition-all">
+            Ethereum (PoS)
+          </button>
+          <button type="button" data-focus="DOGE" class="focus-tab-btn px-3.5 py-2 rounded-lg text-xs font-mono font-semibold text-slate-400 hover:text-white transition-all">
+            Dogecoin (AuxPoW)
+          </button>
+        </div>
+      </div>
+
+      <!-- Dynamic Deep-Dive Panel + Interactive Efficiency Simulator Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left 7 Cols: Deep-Dive Consensus & Mining Architecture Breakdown -->
+        <div class="lg:col-span-7 space-y-5" id="architectureDeepDive">
+          <!-- Populated dynamically based on selected asset (BTC / ETH / DOGE) -->
+        </div>
+
+        <!-- Right 5 Cols: Interactive Mining & Validator Efficiency Simulator -->
+        <div class="lg:col-span-5 bg-[#080c14]/90 border border-white/10 rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div>
+              <span class="text-[10px] font-mono uppercase tracking-wider text-neonCyan">Interactive Telemetry Lab</span>
+              <h3 class="text-base font-bold text-white" id="simTitle">BTC Hydro-ASIC Efficiency Simulator</h3>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/5 text-slate-300 border border-white/10" id="simBadge">
+              SHA-256 PoW
+            </span>
+          </div>
+
+          <!-- Simulator Sliders -->
+          <div class="space-y-4 text-xs">
+            <!-- Electricity Rate -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between font-mono">
+                <span class="text-slate-400">Industrial Power Tariff (<span class="sim-curr-code">USD</span>/kWh)</span>
+                <span class="text-white font-semibold tabular-nums" id="simElecVal">$0.045 / kWh</span>
+              </div>
+              <input id="simElecSlider" type="range" min="0.015" max="0.220" step="0.005" value="0.045" class="w-full" />
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>Flare/Hydro ($0.015)</span>
+                <span>Grid Avg ($0.08)</span>
+                <span>Retail ($0.22)</span>
+              </div>
+            </div>
+
+            <!-- Hardware Efficiency (Dynamically changes label/range for BTC J/TH, ETH Watts, DOGE J/GH) -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between font-mono">
+                <span class="text-slate-400" id="simEffLabel">ASIC Thermodynamic Efficiency</span>
+                <span class="text-neonCyan font-semibold tabular-nums" id="simEffVal">13.5 J/TH</span>
+              </div>
+              <input id="simEffSlider" type="range" min="11.0" max="32.0" step="0.5" value="13.5" class="w-full" />
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono" id="simEffHints">
+                <span>Next-Gen Hydro (11 J/TH)</span>
+                <span>Legacy Air (32 J/TH)</span>
+              </div>
+            </div>
+
+            <!-- Compute / Node Scale -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between font-mono">
+                <span class="text-slate-400" id="simScaleLabel">Deployed Fleet Hashrate</span>
+                <span class="text-white font-semibold tabular-nums" id="simScaleVal">1.00 PH/s (1,000 TH/s)</span>
+              </div>
+              <input id="simScaleSlider" type="range" min="1" max="50" step="1" value="5" class="w-full" />
+            </div>
+          </div>
+
+          <!-- Simulator Live Telemetry Readouts -->
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <div class="bg-[#0d1320] border border-white/10 rounded-xl p-3">
+              <div class="text-[10px] font-mono uppercase text-slate-400">Continuous Draw</div>
+              <div class="text-base sm:text-lg font-mono font-bold text-white mt-0.5 tabular-nums" id="simPowerDraw">13.50 kW</div>
+              <div class="text-[11px] font-mono text-slate-400 mt-0.5 tabular-nums" id="simDailyKwh">324.0 kWh / day</div>
+            </div>
+            <div class="bg-[#0d1320] border border-white/10 rounded-xl p-3">
+              <div class="text-[10px] font-mono uppercase text-slate-400">Daily Energy OpEx</div>
+              <div class="text-base sm:text-lg font-mono font-bold text-btcAmber mt-0.5 tabular-nums" id="simDailyCost">$14.58 / day</div>
+              <div class="text-[11px] font-mono text-posEmerald mt-0.5 tabular-nums" id="simNetMargin">Est. Net Margin: +44.2%</div>
+            </div>
+          </div>
+
+          <!-- Comparative Energy-Per-Transaction Benchmark Bar -->
+          <div class="bg-[#0d1320] border border-white/10 rounded-xl p-3.5 space-y-2">
+            <div class="flex items-center justify-between text-[11px] font-mono">
+              <span class="text-slate-400">Thermodynamic Efficiency Score</span>
+              <span class="text-posEmerald font-semibold" id="simRatingBadge">94 / 100 OPTIMAL</span>
+            </div>
+            <div class="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+              <div id="simRatingBar" class="h-full rounded-full bg-gradient-to-r from-neonCyan to-posEmerald transition-all duration-300" style="width: 94%"></div>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed" id="simInsightText">
+              Sub-15 J/TH immersion cooling reduces thermal dissipation losses by ~38% compared to air-cooled generational baselines.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3-NETWORK SIDE-BY-SIDE COMPARISON MATRIX -->
+      <div class="pt-4 border-t border-white/10">
+        <h3 class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-3">
+          Cross-Chain Consensus &amp; Energy Benchmark Matrix
+        </h3>
+        <div class="overflow-x-auto rounded-xl border border-white/10">
+          <table class="w-full text-left border-collapse text-xs font-mono">
+            <thead>
+              <tr class="bg-[#080c14] text-slate-400 border-b border-white/10">
+                <th class="py-3 px-4 font-semibold">Network / Ticker</th>
+                <th class="py-3 px-4 font-semibold">Consensus &amp; Algo</th>
+                <th class="py-3 px-4 font-semibold">Global Security Compute</th>
+                <th class="py-3 px-4 font-semibold">Hardware Efficiency</th>
+                <th class="py-3 px-4 font-semibold">Block Cadence</th>
+                <th class="py-3 px-4 font-semibold">Energy Optimization Edge</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 bg-[#0b101b]/60">
+              <tr class="hover:bg-white/[0.03] transition-colors">
+                <td class="py-3 px-4 font-bold text-btcAmber">Bitcoin (BTC)</td>
+                <td class="py-3 px-4 text-slate-200">Proof-of-Work (SHA-256)</td>
+                <td class="py-3 px-4 text-white tabular-nums">~1.08 ZH/s</td>
+                <td class="py-3 px-4 text-neonCyan tabular-nums">11.0 – 15.0 J/TH</td>
+                <td class="py-3 px-4 text-slate-300">~10.0 min (3.125 BTC)</td>
+                <td class="py-3 px-4 text-posEmerald">56%+ Sustainable / Stranded Methane &amp; Hydro</td>
+              </tr>
+              <tr class="hover:bg-white/[0.03] transition-colors">
+                <td class="py-3 px-4 font-bold text-ethIndigo">Ethereum (ETH)</td>
+                <td class="py-3 px-4 text-slate-200">Proof-of-Stake (Gasper)</td>
+                <td class="py-3 px-4 text-white tabular-nums">~34.8M ETH Staked</td>
+                <td class="py-3 px-4 text-neonCyan tabular-nums">~18 – 35 W / Node</td>
+                <td class="py-3 px-4 text-slate-300">12.0 sec (Deterministic)</td>
+                <td class="py-3 px-4 text-posEmerald">99.95% Post-Merge Power Reduction + Blob L2s</td>
+              </tr>
+              <tr class="hover:bg-white/[0.03] transition-colors">
+                <td class="py-3 px-4 font-bold text-dogeGold">Dogecoin (DOGE)</td>
+                <td class="py-3 px-4 text-slate-200">AuxPoW (Scrypt Merged)</td>
+                <td class="py-3 px-4 text-white tabular-nums">~2.45 PH/s (Scrypt)</td>
+                <td class="py-3 px-4 text-neonCyan tabular-nums">0.18 – 0.32 J/MH</td>
+                <td class="py-3 px-4 text-slate-300">1.0 min (10,000 DOGE)</td>
+                <td class="py-3 px-4 text-posEmerald">Zero Marginal Power via Litecoin Merged Mining</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- FOOTER TELEMETRY DISCLAIMER -->
+    <footer class="flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] font-mono text-slate-500 pt-2 pb-6">
+      <div>NEXUS COMMAND CENTER // REAL-TIME SYNTHETIC ORDER-BOOK &amp; THERMODYNAMIC TELEMETRY ENGINE</div>
+      <div>CALIBRATED TO LATE-2026 NETWORK DIFFICULTY &amp; HASHRATE PARAMETERS</div>
+    </footer>
+
+  </div>
+
+  <!-- APPLICATION LOGIC -->
+  <script>
+    (function () {
+      'use strict';
+
+      // =========================================================================
+      // 1. STATE & LATE-2026 CALIBRATED MARKET DATA
+      // =========================================================================
+      const CURRENCY_CONFIG = {
+        USD: { symbol: '$', rate: 1.0, code: 'USD', locale: 'en-US' },
+        CAD: { symbol: 'C$', rate: 1.426, code: 'CAD', locale: 'en-CA' },
+        EUR: { symbol: '€', rate: 0.945, code: 'EUR', locale: 'de-DE' }
+      };
+
+      const ASSETS = {
+        BTC: {
+          id: 'BTC',
+          name: 'Bitcoin',
+          symbol: 'BTC',
+          pair: 'BTC / FIAT',
+          color: '#f7931a',
+          colorRgb: '247, 147, 26',
+          badgeBg: 'bg-btcAmber/15 text-btcAmber border-btcAmber/35',
+          activeClass: 'asset-card-active-btc',
+          priceUsd: 60750.00,
+          open24hUsd: 59480.00,
+          high24hUsd: 61420.00,
+          low24hUsd: 58910.00,
+          volume24hUsd: 34820000000,
+          marketCapUsd: 1214500000000,
+          decimals: 2,
+          volatility: 0.0016,
+          networkMetricLabel: 'Hashrate',
+          networkMetricValue: '1.08 ZH/s',
+          efficiencyTag: '13.5 J/TH',
+          history: []
+        },
+        ETH: {
+          id: 'ETH',
+          name: 'Ethereum',
+          symbol: 'ETH',
+          pair: 'ETH / FIAT',
+          color: '#627eea',
+          colorRgb: '98, 126, 234',
+          badgeBg: 'bg-ethIndigo/15 text-ethIndigo border-ethIndigo/35',
+          activeClass: 'asset-card-active-eth',
+          priceUsd: 2180.00,
+          open24hUsd: 2115.00,
+          high24hUsd: 2218.50,
+          low24hUsd: 2094.00,
+          volume24hUsd: 18450000000,
+          marketCapUsd: 262800000000,
+          decimals: 2,
+          volatility: 0.0022,
+          networkMetricLabel: 'Total Staked',
+          networkMetricValue: '34.8M ETH',
+          efficiencyTag: '99.95% Green',
+          history: []
+        },
+        DOGE: {
+          id: 'DOGE',
+          name: 'Dogecoin',
+          symbol: 'DOGE',
+          pair: 'DOGE / FIAT',
+          color: '#c2a633',
+          colorRgb: '194, 166, 51',
+          badgeBg: 'bg-dogeGold/15 text-dogeGold border-dogeGold/35',
+          activeClass: 'asset-card-active-doge',
+          priceUsd: 0.0685,
+          open24hUsd: 0.0659,
+          high24hUsd: 0.0704,
+          low24hUsd: 0.0648,
+          volume24hUsd: 1420000000,
+          marketCapUsd: 10180000000,
+          decimals: 4,
+          volatility: 0.0034,
+          networkMetricLabel: 'Scrypt Rate',
+          networkMetricValue: '2.45 PH/s',
+          efficiencyTag: 'AuxPoW Merged',
+          history: []
+        }
+      };
+
+      // Seed initial 42-point smooth historical sparklines for each asset
+      Object.values(ASSETS).forEach(asset => {
+        let seedPrice = asset.open24hUsd;
+        const points = 42;
+        for (let i = 0; i < points - 1; i++) {
+          const drift = (asset.priceUsd - seedPrice) / (points - i);
+          const noise = (Math.random() - 0.48) * asset.priceUsd * asset.volatility * 3.5;
+          seedPrice = Math.max(asset.low24hUsd * 0.995, seedPrice + drift + noise);
+          asset.history.push(seedPrice);
+        }
+        asset.history.push(asset.priceUsd);
+      });
+
+      const ARCHITECTURE_CONTENT = {
+        BTC: {
+          title: 'Bitcoin (BTC) — SHA-256 Proof-of-Work & Next-Gen Hydro ASIC Thermodynamics',
+          subtitle: 'Sub-15 J/TH immersion cooling, >1.06 ZH/s global security budget, and stranded energy monetization.',
+          accentText: 'text-btcAmber',
+          badgeBg: 'bg-btcAmber/15 text-btcAmber border-btcAmber/30',
+          metrics: [
+            { label: 'Global Hashrate', value: '1.08 ZH/s', sub: 'All-time sovereign compute ceiling' },
+            { label: 'Fleet Efficiency', value: '11.0–14.5 J/TH', sub: 'S21 XP Hydro / M63S+ standard' },
+            { label: 'Block Subsidy', value: '3.125 BTC', sub: '~144 blocks/day + tx fees' },
+            { label: 'Network Hashprice', value: '$26.16 / PH/d', sub: 'Spot revenue per petahash' }
+          ],
+          paragraphs: [
+            'Bitcoin’s SHA-256 Proof-of-Work converts raw electrical energy directly into thermodynamic immutability. Following the 2024 halving to 3.125 BTC per block and network difficulty crossing 1.06 Zettahashes per second (ZH/s), industrial mining profitability hinges on sub-15 Joules per Terahash (J/TH) silicon paired with direct-to-chip hydro or single-phase dielectric immersion cooling.',
+            'Modern mining facilities act as flexible grid-balancing load sinks—monetizing curtailed wind/hydro power, capturing stranded oilfield flare methane, and recycling low-grade thermal exhaust for district heating and greenhouse agriculture.'
+          ],
+          simConfig: {
+            title: 'BTC Hydro-ASIC Efficiency Simulator',
+            badge: 'SHA-256 PoW',
+            effLabel: 'ASIC Energy Efficiency (J/TH)',
+            effMin: 11.0,
+            effMax: 32.0,
+            effStep: 0.5,
+            effDefault: 13.5,
+            effUnit: 'J/TH',
+            effHints: ['Next-Gen Hydro (11 J/TH)', 'Legacy Air-Cooled (32 J/TH)'],
+            scaleLabel: 'Deployed Fleet Compute (PH/s)',
+            scaleMin: 1,
+            scaleMax: 50,
+            scaleStep: 1,
+            scaleDefault: 5,
+            scaleUnit: 'PH/s'
+          }
+        },
+        ETH: {
+          title: 'Ethereum (ETH) — Gasper Proof-of-Stake & Blob-Space Data Availability Efficiency',
+          subtitle: '99.95%+ energy reduction post-Merge with ultra-low-wattage institutional & solo validator nodes.',
+          accentText: 'text-ethIndigo',
+          badgeBg: 'bg-ethIndigo/15 text-ethIndigo border-ethIndigo/30',
+          metrics: [
+            { label: 'Consensus Power', value: '~0.0026 TWh/yr', sub: '99.95% lower than legacy PoW' },
+            { label: 'Validator Draw', value: '18 – 35 Watts', sub: 'ARM / Mini-PC NVMe node footprint' },
+            { label: 'Slot Finality', value: '12.0 Seconds', sub: '2-epoch economic finality (12.8m)' },
+            { label: 'Total Staked', value: '34.8M ETH', sub: '~28.9% of circulating supply' }
+          ],
+          paragraphs: [
+            'By replacing energy-intensive hash competition with cryptographic capital bonding under Gasper Proof-of-Stake, Ethereum decoupled network security from raw electricity expenditure. Validators propose and attest to blocks every 12 seconds using standard consumer or server hardware drawing less power than a household LED bulb.',
+            'With Proto-Danksharding (EIP-4844) blob transactions and PeerDAS scaling, Ethereum maximizes computational efficiency per watt—settling millions of Layer-2 rollup transactions while maintaining deterministic finality and predictable validator yield.'
+          ],
+          simConfig: {
+            title: 'ETH Validator Node Power Simulator',
+            badge: 'Gasper PoS',
+            effLabel: 'Node Hardware TDP (Watts)',
+            effMin: 12,
+            effMax: 120,
+            effStep: 2,
+            effDefault: 24,
+            effUnit: 'W',
+            effHints: ['ARM64 Mini-Node (12W)', 'Dual-PSU Rack Server (120W)'],
+            scaleLabel: 'Active Validator Keys (32 ETH ea)',
+            scaleMin: 1,
+            scaleMax: 50,
+            scaleStep: 1,
+            scaleDefault: 10,
+            scaleUnit: 'Validators'
+          }
+        },
+        DOGE: {
+          title: 'Dogecoin (DOGE) — Scrypt AuxPoW Merged Mining Zero-Overhead Security',
+          subtitle: 'Simultaneous block validation alongside Litecoin without requiring a single extra watt of energy.',
+          accentText: 'text-dogeGold',
+          badgeBg: 'bg-dogeGold/15 text-dogeGold border-dogeGold/30',
+          metrics: [
+            { label: 'Scrypt Hashrate', value: '2.45 PH/s', sub: 'Shared with Litecoin via AuxPoW' },
+            { label: 'Marginal Energy', value: '0.00 kWh Extra', sub: '100% recycled Scrypt hash work' },
+            { label: 'Block Cadence', value: '60 Seconds', sub: '10x faster confirmation vs BTC' },
+            { label: 'Block Issuance', value: '10,000 DOGE', sub: 'Fixed predictable tail emission' }
+          ],
+          paragraphs: [
+            'Dogecoin utilizes the memory-hard Scrypt hashing algorithm and implements Auxiliary Proof-of-Work (AuxPoW), enabling Litecoin Scrypt ASIC miners (such as Antminer L9 class hardware) to simultaneously secure the Dogecoin blockchain at zero incremental electricity cost.',
+            'Because a single Scrypt hash solution can satisfy difficulty targets on both chains concurrently, Dogecoin achieves multi-petahash Sybil resistance and 1-minute block settlement without duplicating global hardware manufacturing or electrical load.'
+          ],
+          simConfig: {
+            title: 'DOGE + LTC Scrypt AuxPoW Simulator',
+            badge: 'Scrypt AuxPoW',
+            effLabel: 'Scrypt ASIC Efficiency (J/MH)',
+            effMin: 0.16,
+            effMax: 0.65,
+            effStep: 0.01,
+            effDefault: 0.21,
+            effUnit: 'J/MH',
+            effHints: ['Next-Gen L9 Class (0.16 J/MH)', 'Older L7/L3+ (0.65 J/MH)'],
+            scaleLabel: 'Scrypt Hashrate Allocation (GH/s)',
+            scaleMin: 5,
+            scaleMax: 100,
+            scaleStep: 5,
+            scaleDefault: 20,
+            scaleUnit: 'GH/s'
+          }
+        }
+      };
+
+      // Application Runtime State
+      let state = {
+        currency: 'USD',
+        isStreaming: true,
+        tickIntervalMs: 1200,
+        volatilityMultiplier: 1.0,
+        focusedAsset: 'BTC',
+        timerId: null
+      };
+
+      // =========================================================================
+      // 2. FORMATTING & CURRENCY CONVERSION HELPERS
+      // =========================================================================
+      function formatFiat(usdValue, decimals = 2) {
+        const cfg = CURRENCY_CONFIG[state.currency];
+        const converted = usdValue * cfg.rate;
+        return cfg.symbol + converted.toLocaleString('en-US', {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals
+        });
+      }
+
+      function formatCompactFiat(usdValue) {
+        const cfg = CURRENCY_CONFIG[state.currency];
+        const val = usdValue * cfg.rate;
+        if (val >= 1e12) return cfg.symbol + (val / 1e12).toFixed(2) + 'T';
+        if (val >= 1e9) return cfg.symbol + (val / 1e9).toFixed(2) + 'B';
+        if (val >= 1e6) return cfg.symbol + (val / 1e6).toFixed(2) + 'M';
+        return formatFiat(usdValue, 2);
+      }
+
+      function getAssetIconSvg(symbol) {
+        if (symbol === 'BTC') {
+          return `<svg class="w-6 h-6 text-btcAmber" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M14.24 10.56c.31-1.24-.76-1.91-2.05-2.36l.42-1.68-1.02-.25-.41 1.63c-.27-.07-.54-.13-.82-.19l.41-1.65-1.02-.25-.42 1.68c-.22-.05-.44-.1-.65-.15l-1.41-.35-.27 1.09s.76.17.74.18c.41.1.49.38.48.59l-.48 1.92c.03.01.07.02.11.03l-.11-.03-.67 2.69c-.05.13-.18.32-.47.25.01.01-.74-.18-.74-.18l-.51 1.17 1.33.33c.25.06.49.13.73.19l-.42 1.7 1.02.25.42-1.68c.28.08.55.15.82.21l-.42 1.67 1.02.25.42-1.7c1.74.33 3.05.2 3.6-1.38.44-1.27-.02-2-.94-2.48.67-.15 1.17-.6 1.31-1.51zm-2.34 3.29c-.32 1.27-2.45.58-3.14.41l.56-2.25c.69.17 2.91.51 2.58 1.84zm.31-3.31c-.29 1.15-2.06.57-2.64.42l.51-2.04c.58.14 2.43.41 2.13 1.62z"/>
+          </svg>`;
+        }
+        if (symbol === 'ETH') {
+          return `<svg class="w-6 h-6 text-ethIndigo" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M11.944 17.97L4.58 13.62 11.943 24l7.37-10.38-7.372 4.35h.003zM12.056 0L4.69 12.223l7.365 4.354 7.365-4.35L12.056 0z"/>
+          </svg>`;
+        }
+        return `<svg class="w-6 h-6 text-dogeGold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="12" cy="12" r="9" />
+          <path stroke-linecap="round" d="M9.5 8.5h3.2a3.3 3.3 0 010 6.6H9.5V8.5zM8 12h5.5" />
+        </svg>`;
+      }
+
+      // =========================================================================
+      // 3. RENDER TOP TICKER TAPE & PRIMARY ASSET CARDS
+      // =========================================================================
+      function updateTopTickerTape() {
+        const tapeEl = document.getElementById('topTickerTape');
+        if (!tapeEl) return;
+
+        const items = Object.values(ASSETS).map(a => {
+          const pct = ((a.priceUsd - a.open24hUsd) / a.open24hUsd) * 100;
+          const isPos = pct >= 0;
+          return `
+            <span class="inline-flex items-center gap-2 mx-5">
+              <span class="font-bold text-white">${a.symbol}/${state.currency}</span>
+              <span class="text-slate-200 tabular-nums">${formatFiat(a.priceUsd, a.decimals)}</span>
+              <span class="${isPos ? 'text-posEmerald' : 'text-negCrimson'} font-semibold tabular-nums">
+                ${isPos ? '▲' : '▼'} ${Math.abs(pct).toFixed(2)}%
+              </span>
+              <span class="text-slate-600">|</span>
+              <span class="text-slate-400 text-[11px]">${a.networkMetricLabel}: <span class="text-neonCyan">${a.networkMetricValue}</span></span>
+            </span>
+          `;
+        }).join('');
+
+        // Duplicate content for seamless infinite scroll loop
+        tapeEl.innerHTML = items + items + items;
+      }
+
+      function renderInitialAssetCards() {
+        const grid = document.getElementById('assetCardsGrid');
+        grid.innerHTML = Object.values(ASSETS).map(asset => {
+          const isFocused = state.focusedAsset === asset.id;
+          return `
+            <article 
+              id="card-${asset.id}"
+              data-asset="${asset.id}"
+              role="button"
+              tabindex="0"
+              aria-label="Select ${asset.name} for mining efficiency inspection"
+              class="asset-card glass-panel rounded-2xl p-5 cursor-pointer relative overflow-hidden group ${isFocused ? asset.activeClass : ''}"
+            >
+              <!-- Subtle Top Accent Glow -->
+              <div class="absolute top-0 inset-x-0 h-0.5 opacity-80" style="background: linear-gradient(90deg, transparent, ${asset.color}, transparent);"></div>
+
+              <!-- Card Top Row: Identity + Efficiency Badge -->
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-3">
+                  <div class="w-11 h-11 rounded-xl bg-[#070b13] border border-white/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    ${getAssetIconSvg(asset.symbol)}
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h2 class="text-base font-bold text-white">${asset.name}</h2>
+                      <span class="text-xs font-mono text-slate-400">${asset.symbol}</span>
+                    </div>
+                    <div class="text-[11px] font-mono text-slate-400 mt-0.5">
+                      ${asset.networkMetricLabel}: <span class="text-slate-200 font-semibold">${asset.networkMetricValue}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold border ${asset.badgeBg}">
+                  ${asset.efficiencyTag}
+                </span>
+              </div>
+
+              <!-- Live Spot Price & 24h Delta -->
+              <div class="mt-4 flex items-baseline justify-between gap-2">
+                <div id="price-${asset.id}" class="text-2xl sm:text-3xl font-mono font-bold text-white tracking-tight tabular-nums px-1 -mx-1">
+                  ${formatFiat(asset.priceUsd, asset.decimals)}
+                </div>
+                <div id="delta-${asset.id}" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-mono font-semibold tabular-nums">
+                  --
+                </div>
+              </div>
+
+              <!-- Interactive HTML5 Canvas Sparkline -->
+              <div class="mt-3 relative h-24 w-full rounded-xl bg-[#070b13]/80 border border-white/5 overflow-hidden">
+                <canvas id="canvas-${asset.id}" class="w-full h-full block"></canvas>
+                <div id="tooltip-${asset.id}" class="hidden pointer-events-none absolute top-1.5 left-2 px-2 py-0.5 rounded bg-obsidian/90 border border-white/15 text-[10px] font-mono text-neonCyan tabular-nums"></div>
+              </div>
+
+              <!-- 24h Range Progress Bar -->
+              <div class="mt-3.5 space-y-1">
+                <div class="flex justify-between text-[10px] font-mono text-slate-400 tabular-nums">
+                  <span>24h L: <span id="low-${asset.id}" class="text-slate-300">${formatFiat(asset.low24hUsd, asset.decimals)}</span></span>
+                  <span>24h H: <span id="high-${asset.id}" class="text-slate-300">${formatFiat(asset.high24hUsd, asset.decimals)}</span></span>
+                </div>
+                <div class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                  <div id="rangebar-${asset.id}" class="h-full rounded-full transition-all duration-300" style="width: 65%; background-color: ${asset.color};"></div>
+                </div>
+              </div>
+
+              <!-- Footer Metrics: 24h Vol & Market Cap -->
+              <div class="mt-3.5 pt-3 border-t border-white/10 grid grid-cols-2 gap-2 text-[11px] font-mono">
+                <div>
+                  <span class="text-slate-400 block text-[10px]">24h Spot Vol</span>
+                  <span id="vol-${asset.id}" class="text-slate-200 font-semibold tabular-nums">${formatCompactFiat(asset.volume24hUsd)}</span>
+                </div>
+                <div class="text-right">
+                  <span class="text-slate-400 block text-[10px]">Market Cap</span>
+                  <span id="mcap-${asset.id}" class="text-slate-200 font-semibold tabular-nums">${formatCompactFiat(asset.marketCapUsd)}</span>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('');
+
+        // Attach click & keyboard selection + canvas hover listeners
+        Object.values(ASSETS).forEach(asset => {
+          const card = document.getElementById(`card-${asset.id}`);
+          card.addEventListener('click', () => setFocusedAsset(asset.id));
+          card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setFocusedAsset(asset.id);
+            }
+          });
+
+          setupSparklineHover(asset.id);
+          updateAssetCardValues(asset.id, 0);
+        });
+      }
+
+      function updateAssetCardValues(assetId, direction = 0) {
+        const asset = ASSETS[assetId];
+        const priceEl = document.getElementById(`price-${assetId}`);
+        const deltaEl = document.getElementById(`delta-${assetId}`);
+        const lowEl = document.getElementById(`low-${assetId}`);
+        const highEl = document.getElementById(`high-${assetId}`);
+        const rangeBarEl = document.getElementById(`rangebar-${assetId}`);
+        const volEl = document.getElementById(`vol-${assetId}`);
+        const mcapEl = document.getElementById(`mcap-${assetId}`);
+
+        if (!priceEl) return;
+
+        priceEl.textContent = formatFiat(asset.priceUsd, asset.decimals);
+
+        // Trigger price tick flash animation
+        if (direction !== 0) {
+          priceEl.classList.remove('tick-up', 'tick-down');
+          void priceEl.offsetWidth; // Force reflow
+          priceEl.classList.add(direction > 0 ? 'tick-up' : 'tick-down');
+        }
+
+        const pct = ((asset.priceUsd - asset.open24hUsd) / asset.open24hUsd) * 100;
+        const isPos = pct >= 0;
+        deltaEl.className = `inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-mono font-semibold tabular-nums ${
+          isPos ? 'bg-posEmerald/15 text-posEmerald' : 'bg-negCrimson/15 text-negCrimson'
+        }`;
+        deltaEl.textContent = `${isPos ? '▲' : '▼'} ${Math.abs(pct).toFixed(2)}%`;
+
+        lowEl.textContent = formatFiat(asset.low24hUsd, asset.decimals);
+        highEl.textContent = formatFiat(asset.high24hUsd, asset.decimals);
+
+        const rangeSpan = Math.max(0.000001, asset.high24hUsd - asset.low24hUsd);
+        const pctInRange = Math.min(100, Math.max(4, ((asset.priceUsd - asset.low24hUsd) / rangeSpan) * 100));
+        rangeBarEl.style.width = `${pctInRange}%`;
+
+        volEl.textContent = formatCompactFiat(asset.volume24hUsd);
+        mcapEl.textContent = formatCompactFiat(asset.marketCapUsd);
+
+        drawSparkline(assetId);
+      }
+
+      // =========================================================================
+      // 4. RESPONSIVE HTML5 CANVAS SPARKLINES WITH HOVER SCRUBBING
+      // =========================================================================
+      function drawSparkline(assetId, hoverIndex = null) {
+        const asset = ASSETS[assetId];
+        const canvas = document.getElementById(`canvas-${assetId}`);
+        if (!canvas) return;
+
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, rect.width, rect.height);
+
+        const data = asset.history;
+        if (data.length < 2) return;
+
+        const minVal = Math.min(...data);
+        const maxVal = Math.max(...data);
+        const span = Math.max(maxVal - minVal, asset.priceUsd * 0.0005);
+        const padY = 12;
+        const usableH = rect.height - padY * 2;
+        const stepX = rect.width / (data.length - 1);
+
+        const coords = data.map((val, idx) => ({
+          x: idx * stepX,
+          y: padY + usableH - ((val - minVal) / span) * usableH
+        }));
+
+        // Gradient Area Fill
+        const grad = ctx.createLinearGradient(0, 0, 0, rect.height);
+        grad.addColorStop(0, `rgba(${asset.colorRgb}, 0.28)`);
+        grad.addColorStop(1, `rgba(${asset.colorRgb}, 0.0)`);
+
+        ctx.beginPath();
+        ctx.moveTo(coords[0].x, rect.height);
+        coords.forEach(pt => ctx.lineTo(pt.x, pt.y));
+        ctx.lineTo(coords[coords.length - 1].x, rect.height);
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Crisp Price Line
+        ctx.beginPath();
+        coords.forEach((pt, idx) => {
+          if (idx === 0) ctx.moveTo(pt.x, pt.y);
+          else ctx.lineTo(pt.x, pt.y);
+        });
+        ctx.strokeStyle = asset.color;
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+
+        // Live Endpoint Pulse Dot
+        const lastPt = coords[coords.length - 1];
+        ctx.beginPath();
+        ctx.arc(lastPt.x - 2, lastPt.y, 3.2, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.strokeStyle = asset.color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Interactive Hover Crosshair
+        if (hoverIndex !== null && coords[hoverIndex]) {
+          const hPt = coords[hoverIndex];
+          ctx.beginPath();
+          ctx.moveTo(hPt.x, 0);
+          ctx.lineTo(hPt.x, rect.height);
+          ctx.strokeStyle = 'rgba(0, 240, 255, 0.45)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([3, 3]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          ctx.beginPath();
+          ctx.arc(hPt.x, hPt.y, 4, 0, Math.PI * 2);
+          ctx.fillStyle = '#00f0ff';
+          ctx.fill();
+        }
+      }
+
+      function setupSparklineHover(assetId) {
+        const canvas = document.getElementById(`canvas-${assetId}`);
+        const tooltip = document.getElementById(`tooltip-${assetId}`);
+        if (!canvas || !tooltip) return;
+
+        const handleMove = (clientX) => {
+          const rect = canvas.getBoundingClientRect();
+          const relX = Math.max(0, Math.min(rect.width, clientX - rect.left));
+          const data = ASSETS[assetId].history;
+          const idx = Math.round((relX / rect.width) * (data.length - 1));
+          const val = data[idx];
+          tooltip.textContent = `T-${data.length - 1 - idx} tick: ${formatFiat(val, ASSETS[assetId].decimals)}`;
+          tooltip.classList.remove('hidden');
+          drawSparkline(assetId, idx);
+        };
+
+        canvas.addEventListener('mousemove', (e) => handleMove(e.clientX));
+        canvas.addEventListener('mouseleave', () => {
+          tooltip.classList.add('hidden');
+          drawSparkline(assetId, null);
+        });
+        canvas.addEventListener('touchmove', (e) => {
+          if (e.touches && e.touches[0]) {
+            handleMove(e.touches[0].clientX);
+          }
+        }, { passive: true });
+        canvas.addEventListener('touchend', () => {
+          tooltip.classList.add('hidden');
+          drawSparkline(assetId, null);
+        });
+      }
+
+      // =========================================================================
+      // 5. LIVE TELEMETRY TICK ENGINE
+      // =========================================================================
+      function executeMarketTick(impulseMultiplier = 1.0) {
+        Object.values(ASSETS).forEach(asset => {
+          const shock = (Math.random() - 0.492) * 2 * asset.volatility * state.volatilityMultiplier * impulseMultiplier;
+          const prevPrice = asset.priceUsd;
+          const newPrice = Math.max(0.0001, prevPrice * (1 + shock));
+
+          asset.priceUsd = newPrice;
+          if (newPrice > asset.high24hUsd) asset.high24hUsd = newPrice;
+          if (newPrice < asset.low24hUsd) asset.low24hUsd = newPrice;
+
+          // Update synthetic volume & market cap proportionally
+          asset.volume24hUsd += Math.abs(shock) * asset.volume24hUsd * 0.25;
+          asset.marketCapUsd = asset.marketCapUsd * (newPrice / prevPrice);
+
+          asset.history.push(newPrice);
+          if (asset.history.length > 48) {
+            asset.history.shift();
+          }
+
+          const dir = newPrice > prevPrice ? 1 : (newPrice < prevPrice ? -1 : 0);
+          updateAssetCardValues(asset.id, dir);
+        });
+
+        updateTopTickerTape();
+        recalculateSimulator();
+      }
+
+      function restartStreamTimer() {
+        if (state.timerId) {
+          clearInterval(state.timerId);
+          state.timerId = null;
+        }
+        if (state.isStreaming) {
+          state.timerId = setInterval(() => executeMarketTick(1.0), state.tickIntervalMs);
+        }
+      }
+
+      // =========================================================================
+      // 6. MINING EFFICIENCY DEEP-DIVE & SIMULATOR ENGINE
+      // =========================================================================
+      function setFocusedAsset(assetId) {
+        state.focusedAsset = assetId;
+
+        // Update Card Active Borders
+        Object.values(ASSETS).forEach(a => {
+          const card = document.getElementById(`card-${a.id}`);
+          if (!card) return;
+          card.classList.remove('asset-card-active-btc', 'asset-card-active-eth', 'asset-card-active-doge');
+          if (a.id === assetId) {
+            card.classList.add(a.activeClass);
+          }
+        });
+
+        // Update Focus Tabs
+        document.querySelectorAll('.focus-tab-btn').forEach(btn => {
+          const target = btn.getAttribute('data-focus');
+          btn.className = 'focus-tab-btn px-3.5 py-2 rounded-lg text-xs font-mono font-semibold transition-all ';
+          if (target === assetId) {
+            if (assetId === 'BTC') btn.className += 'bg-btcAmber/20 text-btcAmber border border-btcAmber/40';
+            if (assetId === 'ETH') btn.className += 'bg-ethIndigo/20 text-ethIndigo border border-ethIndigo/40';
+            if (assetId === 'DOGE') btn.className += 'bg-dogeGold/20 text-dogeGold border border-dogeGold/40';
+          } else {
+            btn.className += 'text-slate-400 hover:text-white';
+          }
+        });
+
+        renderArchitectureDeepDive(assetId);
+        configureSimulatorForAsset(assetId);
+      }
+
+      function renderArchitectureDeepDive(assetId) {
+        const info = ARCHITECTURE_CONTENT[assetId];
+        const container = document.getElementById('architectureDeepDive');
+        if (!container || !info) return;
+
+        container.innerHTML = `
+          <div class="space-y-3">
+            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-mono font-semibold border ${info.badgeBg}">
+              SELECTED ARCHITECTURE: ${assetId}
+            </span>
+            <h3 class="text-lg sm:text-xl font-bold text-white leading-snug">
+              ${info.title}
+            </h3>
+            <p class="text-xs sm:text-sm ${info.accentText} font-medium">
+              ${info.subtitle}
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            ${info.metrics.map(m => `
+              <div class="bg-[#080c14]/90 border border-white/10 rounded-xl p-3">
+                <div class="text-[10px] font-mono uppercase text-slate-400">${m.label}</div>
+                <div class="text-sm sm:text-base font-mono font-bold text-white mt-1 tabular-nums">${m.value}</div>
+                <div class="text-[10px] text-slate-400 mt-0.5 leading-tight">${m.sub}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="space-y-3 text-xs sm:text-sm text-slate-300 leading-relaxed bg-[#080c14]/60 border border-white/5 rounded-xl p-4">
+            ${info.paragraphs.map(p => `<p>${p}</p>`).join('')}
+          </div>
+        `;
+      }
+
+      function configureSimulatorForAsset(assetId) {
+        const cfg = ARCHITECTURE_CONTENT[assetId].simConfig;
+        document.getElementById('simTitle').textContent = cfg.title;
+        document.getElementById('simBadge').textContent = cfg.badge;
+        document.getElementById('simEffLabel').textContent = cfg.effLabel;
+
+        const effSlider = document.getElementById('simEffSlider');
+        effSlider.min = cfg.effMin;
+        effSlider.max = cfg.effMax;
+        effSlider.step = cfg.effStep;
+        effSlider.value = cfg.effDefault;
+
+        document.getElementById('simEffHints').innerHTML = `
+          <span>${cfg.effHints[0]}</span>
+          <span>${cfg.effHints[1]}</span>
+        `;
+
+        document.getElementById('simScaleLabel').textContent = cfg.scaleLabel;
+        const scaleSlider = document.getElementById('simScaleSlider');
+        scaleSlider.min = cfg.scaleMin;
+        scaleSlider.max = cfg.scaleMax;
+        scaleSlider.step = cfg.scaleStep;
+        scaleSlider.value = cfg.scaleDefault;
+
+        recalculateSimulator();
+      }
+
+      function recalculateSimulator() {
+        const assetId = state.focusedAsset;
+        const cfg = ARCHITECTURE_CONTENT[assetId].simConfig;
+        const currCfg = CURRENCY_CONFIG[state.currency];
+
+        const elecUsd = parseFloat(document.getElementById('simElecSlider').value);
+        const eff = parseFloat(document.getElementById('simEffSlider').value);
+        const scale = parseFloat(document.getElementById('simScaleSlider').value);
+
+        document.querySelectorAll('.sim-curr-code').forEach(el => el.textContent = currCfg.code);
+        document.getElementById('simElecVal').textContent = `${currCfg.symbol}${(elecUsd * currCfg.rate).toFixed(3)} / kWh`;
+        document.getElementById('simEffVal').textContent = `${eff} ${cfg.effUnit}`;
+        document.getElementById('simScaleVal').textContent = `${scale} ${cfg.scaleUnit}`;
+
+        let continuousKw = 0;
+        let dailyGrossRevenueUsd = 0;
+        let ratingScore = 85;
+        let insight = '';
+
+        if (assetId === 'BTC') {
+          // 1 PH/s = 1,000 TH/s; Watts = TH/s * J/TH; kW = (scale * 1000 * eff) / 1000 = scale * eff
+          continuousKw = scale * eff;
+          // Hashprice scales dynamically with live BTC spot price relative to $60,750 baseline
+          const liveHashpriceUsdPerPh = 26.16 * (ASSETS.BTC.priceUsd / 60750);
+          dailyGrossRevenueUsd = scale * liveHashpriceUsdPerPh;
+          ratingScore = Math.round(Math.max(25, Math.min(99, 100 - (eff - 11) * 2.8 - (elecUsd - 0.02) * 140)));
+          insight = eff <= 15
+            ? `Sub-15 J/TH hydro/immersion silicon achieves top-decile thermodynamic efficiency (${(continuousKw / scale).toFixed(1)} kW per PH/s).`
+            : `Legacy air-cooled silicon above 20 J/TH requires sub-$0.04/kWh curtailed energy to sustain post-halving margins.`;
+        } else if (assetId === 'ETH') {
+          // Single node hosts multiple validator keys; base node TDP + 0.5W per key
+          const totalWatts = eff + (scale - 1) * 0.5;
+          continuousKw = totalWatts / 1000;
+          // ~3.35% APR on 32 ETH per validator
+          const dailyEthYield = (scale * 32 * 0.0335) / 365;
+          dailyGrossRevenueUsd = dailyEthYield * ASSETS.ETH.priceUsd;
+          ratingScore = Math.round(Math.max(65, Math.min(99, 100 - (eff - 12) * 0.28)));
+          insight = `Running ${scale} validator keys on a ${eff}W node consumes just ${(continuousKw * 24).toFixed(2)} kWh/day—99.95% less energy than legacy PoW.`;
+        } else {
+          // DOGE + LTC Scrypt AuxPoW: 1 GH/s = 1,000 MH/s; kW = (scale * 1000 * eff) / 1000 = scale * eff
+          continuousKw = scale * eff;
+          // Dual-mined Scrypt revenue (~$1.45/GH/day scaled with live DOGE price)
+          const liveScryptRevPerGh = 1.48 * (ASSETS.DOGE.priceUsd / 0.0685);
+          dailyGrossRevenueUsd = scale * liveScryptRevPerGh;
+          ratingScore = Math.round(Math.max(30, Math.min(98, 100 - (eff - 0.16) * 110 - (elecUsd - 0.02) * 120)));
+          insight = `AuxPoW merged mining validates Dogecoin blocks concurrently with Litecoin using 0.00 kWh of incremental energy.`;
+        }
+
+        const dailyKwh = continuousKw * 24;
+        const dailyCostUsd = dailyKwh * elecUsd;
+        const netMarginPct = dailyGrossRevenueUsd > 0
+          ? ((dailyGrossRevenueUsd - dailyCostUsd) / dailyGrossRevenueUsd) * 100
+          : 0;
+
+        document.getElementById('simPowerDraw').textContent = continuousKw >= 1
+          ? `${continuousKw.toFixed(2)} kW`
+          : `${(continuousKw * 1000).toFixed(1)} W`;
+        document.getElementById('simDailyKwh').textContent = `${dailyKwh.toFixed(2)} kWh / day`;
+        document.getElementById('simDailyCost').textContent = `${formatFiat(dailyCostUsd, 2)} / day`;
+
+        const marginEl = document.getElementById('simNetMargin');
+        marginEl.textContent = `Est. Net Margin: ${netMarginPct >= 0 ? '+' : ''}${netMarginPct.toFixed(1)}%`;
+        marginEl.className = `text-[11px] font-mono mt-0.5 tabular-nums ${netMarginPct >= 0 ? 'text-posEmerald' : 'text-negCrimson'}`;
+
+        const badgeEl = document.getElementById('simRatingBadge');
+        badgeEl.textContent = `${ratingScore} / 100 ${ratingScore >= 80 ? 'OPTIMAL' : ratingScore >= 55 ? 'BALANCED' : 'HIGH OPEX'}`;
+        badgeEl.className = `font-semibold ${ratingScore >= 80 ? 'text-posEmerald' : ratingScore >= 55 ? 'text-neonCyan' : 'text-negCrimson'}`;
+
+        document.getElementById('simRatingBar').style.width = `${ratingScore}%`;
+        document.getElementById('simInsightText').textContent = insight;
+      }
+
+      // =========================================================================
+      // 7. CONTROL BOARD EVENT LISTENERS & CLOCKS
+      // =========================================================================
+      function bindControlEvents() {
+        // Currency Switcher
+        document.querySelectorAll('.currency-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            state.currency = btn.getAttribute('data-currency');
+            document.querySelectorAll('.currency-btn').forEach(b => {
+              const active = b.getAttribute('data-currency') === state.currency;
+              b.className = active
+                ? 'currency-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all bg-neonCyan text-obsidian shadow-[0_0_12px_rgba(0,240,255,0.4)]'
+                : 'currency-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold text-slate-400 hover:text-white transition-all';
+            });
+
+            Object.keys(ASSETS).forEach(id => updateAssetCardValues(id, 0));
+            updateTopTickerTape();
+            recalculateSimulator();
+          });
+        });
+
+        // Stream Toggle
+        document.getElementById('toggleStreamBtn').addEventListener('click', () => {
+          state.isStreaming = !state.isStreaming;
+          const btn = document.getElementById('toggleStreamBtn');
+          const label = document.getElementById('streamBtnLabel');
+          const pauseIcon = document.getElementById('pauseIcon');
+          const playIcon = document.getElementById('playIcon');
+          const badge = document.getElementById('connectionBadge');
+          const connText = document.getElementById('connectionText');
+
+          if (state.isStreaming) {
+            btn.className = 'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-posEmerald/15 text-posEmerald border border-posEmerald/35 hover:bg-posEmerald/25 transition-all';
+            label.textContent = 'STREAMING';
+            pauseIcon.classList.remove('hidden');
+            playIcon.classList.add('hidden');
+            badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-posEmerald/15 text-posEmerald border border-posEmerald/30';
+            connText.textContent = 'LIVE FEED ACTIVE';
+          } else {
+            btn.className = 'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/35 hover:bg-amber-500/25 transition-all';
+            label.textContent = 'PAUSED';
+            pauseIcon.classList.add('hidden');
+            playIcon.classList.remove('hidden');
+            badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30';
+            connText.textContent = 'FEED PAUSED';
+          }
+
+          restartStreamTimer();
+        });
+
+        // Speed Selector
+        document.querySelectorAll('.speed-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            state.tickIntervalMs = parseInt(btn.getAttribute('data-speed'), 10);
+            document.querySelectorAll('.speed-btn').forEach(b => {
+              const active = parseInt(b.getAttribute('data-speed'), 10) === state.tickIntervalMs;
+              b.className = active
+                ? 'speed-btn px-2.5 py-1.5 rounded-lg text-xs font-mono bg-white/10 text-white font-semibold transition-all'
+                : 'speed-btn px-2.5 py-1.5 rounded-lg text-xs font-mono text-slate-400 hover:text-white transition-all';
+            });
+            restartStreamTimer();
+          });
+        });
+
+        // Volatility Stress Slider
+        document.getElementById('volatilitySlider').addEventListener('input', (e) => {
+          state.volatilityMultiplier = parseFloat(e.target.value);
+          const desc = state.volatilityMultiplier <= 0.6 ? 'Calm'
+            : state.volatilityMultiplier <= 1.4 ? 'Standard'
+            : state.volatilityMultiplier <= 2.6 ? 'Elevated'
+            : 'Extreme';
+          document.getElementById('volatilityLabel').textContent = `${state.volatilityMultiplier.toFixed(1)}x (${desc})`;
+        });
+
+        // Force Market Pulse Button
+        document.getElementById('forcePulseBtn').addEventListener('click', () => {
+          executeMarketTick(3.5);
+        });
+
+        // Focus Network Tabs
+        document.querySelectorAll('.focus-tab-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            setFocusedAsset(btn.getAttribute('data-focus'));
+          });
+        });
+
+        // Simulator Sliders
+        ['simElecSlider', 'simEffSlider', 'simScaleSlider'].forEach(id => {
+          document.getElementById(id).addEventListener('input', recalculateSimulator);
+        });
+
+        // Redraw responsive canvases on window resize
+        window.addEventListener('resize', () => {
+          Object.keys(ASSETS).forEach(id => drawSparkline(id));
+        });
+      }
+
+      function startTelemetryClocks() {
+        const updateClocks = () => {
+          const now = new Date();
+          const utcStr = now.toISOString().substring(11, 19) + ' UTC';
+          const localStr = now.toTimeString().substring(0, 8);
+          document.getElementById('utcClock').textContent = utcStr;
+          document.getElementById('localClock').textContent = localStr;
+        };
+        updateClocks();
+        setInterval(updateClocks, 1000);
+      }
+
+      // =========================================================================
+      // 8. INITIALIZE COMMAND CENTER ON WINDOW LOAD
+      // =========================================================================
+      window.onload = function () {
+        updateTopTickerTape();
+        renderInitialAssetCards();
+        setFocusedAsset('BTC');
+        bindControlEvents();
+        startTelemetryClocks();
+        restartStreamTimer();
+      };
+    })();
+  </script>
+</body>
+</html>
